@@ -20,26 +20,41 @@ const About = () => {
     { id: 7, skill: 'Git', src: git, alt: 'Git' }
   ];
   const bios = [
-    "My journey in IT started 2 years ago, and since then, I've worked on a variety of projects, from setting up networks to complex web applications. I'm constantly learning and exploring new technologies to stay at the forefront of web development.", 
-    "I am a quick learner and I am always looking for new challenges. Trying my best to learn and grow", 
-    "Trying my best to learn and grow."
-  ];
+    "Trying my best to learn and grow.",
+    "I'm a quick learner who enjoys taking on new challenges and constantly seeks opportunities to grow.",
+    "My journey in IT began two years ago, and since then, I've worked on diverse projects ranging from network setups to developing complex web applications. I continually explore and learn new technologies to remain at the forefront of web development.",
+    "I'm currently pursuing an A.S. degree in IT Security, specializing in Cybersecurity. My journey in IT began two years ago, during which I've gained experience working on various projects, from configuring networks to building complex web applications. I'm committed to continuous learning to keep up with the rapidly evolving field of web development.",
+    "I'm currently pursuing my A.S. degree in IT Security, specializing in Cybersecurity, at Santa Fe College in my hometown of Gainesville, Florida. My journey in IT began two years ago, and since then, I've had the opportunity to work on various projects, ranging from network setups to advanced web applications. I'm dedicated to continually learning and exploring emerging technologies to stay ahead in the dynamic field of web development."
+    ];
 
-  function BioRotation({bios}) {
-    const [currentIndex, setCurrentIndex] = useState(0);
+  const BioRotation = () => {
+    const [bioLength, setBioLength] = useState(2); // Default bio selection (index 2)
 
-    const handleNext = () => {
-      setCurrentIndex((currentIndex + 1) % bios.length);
-    };
     return (
-      <div className="bio-container">
-        <div className="bio-button-container">
-          <button className="btn btn-primary" onClick={handleNext}>🔄 Shorten Bio</button>
+      <div className="bio-switcher">
+        <p className="bio-label-text">ADJUST BIO LENGTH:</p>
+        <div className="radio-group">
+          {bios.map((_, index) => (
+            <label key={index} className="radio-label">
+              <input
+                type="radio"
+                name="bio-length"
+                value={index}
+                checked={bioLength === index}
+                onChange={() => setBioLength(index)}
+                className="radio-input"
+              />
+              <span className="radio-custom" />
+            </label>
+          ))}
         </div>
-        <span>{bios[currentIndex]}</span>
+  
+        <p className="bio-text">
+          {bios[bioLength]}
+        </p>
       </div>
     );
-  }
+  };
 
   return (
     <section id="about" className="about section">
@@ -51,7 +66,7 @@ const About = () => {
           </div>
           
           <div className="about-skills">
-            <h3 className="about-skills-title">Skills</h3>
+            <h3 className="about-skills-title">Preffered Stack:</h3>
             <div className="about-skills-list">
               {skills.map((skill, index) => (
                 <img key={skill.id} src={skill.src} alt={skill.alt} style={{ width: '40px', height: '40px' }} className="bio-image" />
