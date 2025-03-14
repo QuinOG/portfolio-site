@@ -60,7 +60,7 @@ const Navbar = () => {
     <header className={`navbar ${isScrolled ? 'scrolled' : ''}`}>
       <div className="container navbar-container">
         <a href="#home" className="navbar-logo" onClick={(e) => handleLinkClick(e, 'home')}>
-          <span className="logo-text">Quin.dev</span>
+          <span className="logo-text">Quin.dev<span className="logo-dot"></span></span>
         </a>
 
         <nav className={`navbar-nav ${isMobileMenuOpen ? 'open' : ''}`}>
