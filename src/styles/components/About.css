@@ -199,4 +199,8 @@
   .about-image-container {
     max-width: 300px;
   }
+
+  .bio-length-text-container {
+    gap: var(--space-4xl);
+  }
 }
