@@ -13,6 +13,11 @@ const schema = yup.object({
     .min(10, 'Message should be at least 10 characters')
 });
 
+// EmailJS configuration
+const EMAILJS_SERVICE_ID = 'service_urwtgiq';
+const EMAILJS_TEMPLATE_ID = 'template_r1wlct1';
+const EMAILJS_PUBLIC_KEY = 'hGINihO2-pXRw9RHj';
+
 const Contact = () => {
   const [formStatus, setFormStatus] = useState(null);
   const [isVisible, setIsVisible] = useState(false);
@@ -47,9 +52,6 @@ const Contact = () => {
       observer.observe(contactRef.current);
     }
     
-    // Initialize EmailJS - no need to initialize here since we'll pass the public key directly
-    // This avoids domain restriction issues
-    
     return () => {
       if (contactRef.current) {
         observer.unobserve(contactRef.current);
@@ -70,25 +72,33 @@ const Contact = () => {
     setFormStatus('sending');
     
     try {
-      console.log('Attempting to send email with data:', {
-        name: data.name,
-        email: data.email,
-        message: data.message
-      });
+      console.log('Attempting to send email with data:', data);
       
-      // Using EmailJS for form submission
-      const templateParams = {
-        name: data.name,
-        email: data.email,
-        message: data.message
-      };
+      // Create a temporary form element for EmailJS
+      const tempForm = document.createElement('form');
       
-      // Use the direct send method that doesn't require initialization
+      // Add the form fields
+      const nameInput = document.createElement('input');
+      nameInput.name = 'name';
+      nameInput.value = data.name;
+      tempForm.appendChild(nameInput);
+      
+      const emailInput = document.createElement('input');
+      emailInput.name = 'email';
+      emailInput.value = data.email;
+      tempForm.appendChild(emailInput);
+      
+      const messageInput = document.createElement('textarea');
+      messageInput.name = 'message';
+      messageInput.value = data.message;
+      tempForm.appendChild(messageInput);
+      
+      // Send the email using EmailJS
       const result = await emailjs.sendForm(
-        'service_urwtgiq', 
-        'template_r1wlct1',
-        formRef.current,
-        'hGINihO2-pXRw9RHj'
+        EMAILJS_SERVICE_ID,
+        EMAILJS_TEMPLATE_ID,
+        tempForm,
+        EMAILJS_PUBLIC_KEY
       );
       
       console.log('EmailJS result:', result);
