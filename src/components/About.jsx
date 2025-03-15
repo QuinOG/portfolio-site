@@ -1,13 +1,13 @@
 import React from 'react';
-import avatar from '../avatar.jpg';
+import avatar from '../assets/avatar.jpg';
 import { useState } from 'react';
-import html from '../html5.png';
-import css from '../css3.png';
-import javascript from '../javascript.png';
-import react from '../react.png';
-import node from '../nodejs.png';
-import sql from '../mysql.png';
-import git from '../github.png';
+import html from '../assets/html5.png';
+import css from '../assets/css3.png';
+import javascript from '../assets/javascript.png';
+import react from '../assets/react.png';
+import node from '../assets/nodejs.png';
+import sql from '../assets/mysql.png';
+import git from '../assets/github.png';
 
 const About = () => {
   const skills = [
@@ -48,6 +48,10 @@ const About = () => {
             </label>
           ))}
         </div>
+        <div className="bio-length-text-container">
+          <p className="bio-length-text-short">shortest</p>
+          <p className="bio-length-text-long">longest</p>
+        </div>
   
         <p className="bio-text">
           {bios[bioLength]}
@@ -66,7 +70,7 @@ const About = () => {
           </div>
           
           <div className="about-skills">
-            <h3 className="about-skills-title">Preffered Stack:</h3>
+            <h3 className="about-skills-title">Preferred Stack</h3>
             <div className="about-skills-list">
               {skills.map((skill, index) => (
                 <img key={skill.id} src={skill.src} alt={skill.alt} style={{ width: '40px', height: '40px' }} className="bio-image" />

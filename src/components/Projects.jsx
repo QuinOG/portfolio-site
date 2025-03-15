@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
-import NetQuest from '../NetQuest.jpg';
-import ebay from '../ebay.jpg';
-import portfolio from '../portfolio.jpg';
+import NetQuest from '../assets/NetQuest.jpg';
+import ebay from '../assets/ebay.jpg';
+import portfolio from '../assets/portfolio.jpg';
 
 const projectsData = [
   {
