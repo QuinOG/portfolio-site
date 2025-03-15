@@ -49,8 +49,9 @@ const About = () => {
           ))}
         </div>
         <div className="bio-length-text-container">
-          <p className="bio-length-text-short">shortest</p>
-          <p className="bio-length-text-long">longest</p>
+          <p className="bio-length-text">shortest</p>
+          <p className="bio-length-text">to</p>
+          <p className="bio-length-text">longest</p>
         </div>
   
         <p className="bio-text">

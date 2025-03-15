@@ -158,11 +158,11 @@
 
 .bio-length-text-container {
   display: flex;
-  gap: var(--space-3xl);
+  gap: var(--space-lg);
   margin-bottom: var(--space-md);
 }
 
-.bio-length-text-short, .bio-length-text-long {
+.bio-length-text {
   font-size: .6rem;
   font-weight: 400;
   letter-spacing: 1px;
@@ -201,6 +201,6 @@
   }
 
   .bio-length-text-container {
-    gap: var(--space-4xl);
+    gap: var(--space-xl);
   }
 }
