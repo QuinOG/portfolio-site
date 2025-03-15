@@ -1,17 +1,33 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useForm } from 'react-hook-form';
+import { yupResolver } from '@hookform/resolvers/yup';
+import * as yup from 'yup';
+
+// Form validation schema
+const schema = yup.object({
+  name: yup.string().required('Name is required'),
+  email: yup.string().email('Please enter a valid email').required('Email is required'),
+  message: yup.string()
+    .required('Message is required')
+    .min(10, 'Message should be at least 10 characters')
+});
 
 const Contact = () => {
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    message: ''
-  });
   const [formStatus, setFormStatus] = useState(null);
-  const [formErrors, setFormErrors] = useState({});
   const [isVisible, setIsVisible] = useState(false);
   const [focusedInput, setFocusedInput] = useState(null);
   const contactRef = useRef(null);
   const formRef = useRef(null);
+
+  // Initialize React Hook Form
+  const { 
+    register, 
+    handleSubmit, 
+    formState: { errors },
+    reset
+  } = useForm({
+    resolver: yupResolver(schema)
+  });
 
   useEffect(() => {
     // Add scroll reveal observer
@@ -37,22 +53,6 @@ const Contact = () => {
     };
   }, []);
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prevState => ({
-      ...prevState,
-      [name]: value
-    }));
-    
-    // Clear error when user starts typing
-    if (formErrors[name]) {
-      setFormErrors(prev => ({
-        ...prev,
-        [name]: ''
-      }));
-    }
-  };
-
   const handleFocus = (inputName) => {
     setFocusedInput(inputName);
   };
@@ -61,60 +61,41 @@ const Contact = () => {
     setFocusedInput(null);
   };
 
-  const validateForm = () => {
-    const errors = {};
-    
-    // Name validation
-    if (!formData.name.trim()) {
-      errors.name = 'Name is required';
-    }
-    
-    // Email validation
-    if (!formData.email.trim()) {
-      errors.email = 'Email is required';
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      errors.email = 'Please enter a valid email address';
-    }
-    
-    // Message validation
-    if (!formData.message.trim()) {
-      errors.message = 'Message is required';
-    } else if (formData.message.trim().length < 10) {
-      errors.message = 'Message should be at least 10 characters';
-    }
-    
-    setFormErrors(errors);
-    return Object.keys(errors).length === 0;
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    
-    // Validate form
-    if (!validateForm()) {
-      // Shake form on error
-      if (formRef.current) {
-        formRef.current.classList.add('shake');
-        setTimeout(() => {
-          formRef.current.classList.remove('shake');
-        }, 500);
-      }
-      return;
-    }
-    
-    // Simulate form submission
+  // Form submission handler
+  const onSubmit = async (data) => {
     setFormStatus('sending');
     
-    // Simulate API call
-    setTimeout(() => {
-      setFormStatus('success');
-      setFormData({ name: '', email: '', message: '' });
+    try {
+      // Using Formspree for form submission
+      const response = await fetch('https://formspree.io/f/xeoaoajj', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+      });
       
-      // Reset status after 3 seconds
+      if (response.ok) {
+        setFormStatus('success');
+        reset(); // Reset form fields
+        
+        // Reset status after 3 seconds
+        setTimeout(() => {
+          setFormStatus(null);
+        }, 3000);
+      } else {
+        setFormStatus('error');
+        setTimeout(() => {
+          setFormStatus(null);
+        }, 3000);
+      }
+    } catch (error) {
+      console.error('Form submission error:', error);
+      setFormStatus('error');
       setTimeout(() => {
         setFormStatus(null);
       }, 3000);
-    }, 1500);
+    }
   };
 
   return (
@@ -130,55 +111,49 @@ const Contact = () => {
         <div className="contact-content">
           <form 
             ref={formRef}
-            className={`contact-form reveal ${formStatus === 'success' ? 'success' : ''}`} 
-            onSubmit={handleSubmit}
+            className={`contact-form reveal ${formStatus === 'success' ? 'success' : ''} ${formStatus === 'error' ? 'error' : ''}`} 
+            onSubmit={handleSubmit(onSubmit)}
           >
-            <div className={`form-group ${formErrors.name ? 'error' : ''} ${focusedInput === 'name' ? 'focused' : ''}`}>
+            <div className={`form-group ${errors.name ? 'error' : ''} ${focusedInput === 'name' ? 'focused' : ''}`}>
               <label htmlFor="name">Name</label>
               <input
                 type="text"
                 id="name"
-                name="name"
-                value={formData.name}
-                onChange={handleChange}
-                onFocus={() => handleFocus('name')}
-                onBlur={handleBlur}
                 className="interactive"
                 placeholder="Your name"
+                {...register('name')}
+                onFocus={() => handleFocus('name')}
+                onBlur={handleBlur}
               />
-              {formErrors.name && <div className="form-error">{formErrors.name}</div>}
+              {errors.name && <div className="form-error">{errors.name.message}</div>}
             </div>
             
-            <div className={`form-group ${formErrors.email ? 'error' : ''} ${focusedInput === 'email' ? 'focused' : ''}`}>
+            <div className={`form-group ${errors.email ? 'error' : ''} ${focusedInput === 'email' ? 'focused' : ''}`}>
               <label htmlFor="email">Email</label>
               <input
                 type="email"
                 id="email"
-                name="email"
-                value={formData.email}
-                onChange={handleChange}
-                onFocus={() => handleFocus('email')}
-                onBlur={handleBlur}
                 className="interactive"
                 placeholder="Your email"
+                {...register('email')}
+                onFocus={() => handleFocus('email')}
+                onBlur={handleBlur}
               />
-              {formErrors.email && <div className="form-error">{formErrors.email}</div>}
+              {errors.email && <div className="form-error">{errors.email.message}</div>}
             </div>
             
-            <div className={`form-group ${formErrors.message ? 'error' : ''} ${focusedInput === 'message' ? 'focused' : ''}`}>
+            <div className={`form-group ${errors.message ? 'error' : ''} ${focusedInput === 'message' ? 'focused' : ''}`}>
               <label htmlFor="message">Message</label>
               <textarea
                 id="message"
-                name="message"
-                value={formData.message}
-                onChange={handleChange}
-                onFocus={() => handleFocus('message')}
-                onBlur={handleBlur}
                 className="interactive"
                 placeholder="Your message"
                 rows="5"
+                {...register('message')}
+                onFocus={() => handleFocus('message')}
+                onBlur={handleBlur}
               ></textarea>
-              {formErrors.message && <div className="form-error">{formErrors.message}</div>}
+              {errors.message && <div className="form-error">{errors.message.message}</div>}
             </div>
             
             <button 
@@ -200,6 +175,15 @@ const Contact = () => {
                   <path d="M10 0C4.48 0 0 4.48 0 10C0 15.52 4.48 20 10 20C15.52 20 20 15.52 20 10C20 4.48 15.52 0 10 0ZM8 15L3 10L4.41 8.59L8 12.17L15.59 4.58L17 6L8 15Z" fill="currentColor"/>
                 </svg>
                 <span>Message sent successfully!</span>
+              </div>
+            )}
+            
+            {formStatus === 'error' && (
+              <div className="form-error-message">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M10 0C4.48 0 0 4.48 0 10C0 15.52 4.48 20 10 20C15.52 20 20 15.52 20 10C20 4.48 15.52 0 10 0ZM11 15H9V13H11V15ZM11 11H9V5H11V11Z" fill="currentColor"/>
+                </svg>
+                <span>Something went wrong. Please try again.</span>
               </div>
             )}
           </form>

@@ -199,10 +199,4 @@
   .about-image-container {
     max-width: 300px;
   }
-
-  .bio-length-text-container {
-    display: flex;
-    gap: var(--space-xl);
-    margin-bottom: var(--space-md);
-  }
 }
