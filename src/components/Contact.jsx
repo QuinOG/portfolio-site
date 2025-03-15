@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
+import emailjs from '@emailjs/browser';
 
 // Form validation schema
 const schema = yup.object({
@@ -46,6 +47,18 @@ const Contact = () => {
       observer.observe(contactRef.current);
     }
     
+    // Initialize EmailJS
+    try {
+      emailjs.init({
+        publicKey: "hGINihO2-pXRw9RHj",
+        // Uncomment this if you're having domain restriction issues
+        restrictOrigin: false
+      });
+      console.log("EmailJS initialized successfully");
+    } catch (error) {
+      console.error("EmailJS initialization error:", error);
+    }
+    
     return () => {
       if (contactRef.current) {
         observer.unobserve(contactRef.current);
@@ -66,16 +79,29 @@ const Contact = () => {
     setFormStatus('sending');
     
     try {
-      // Using Formspree for form submission
-      const response = await fetch('https://formspree.io/f/xeoaoajj', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(data)
+      console.log('Attempting to send email with data:', {
+        name: data.name,
+        email: data.email,
+        message: data.message
       });
       
-      if (response.ok) {
+      // Using EmailJS for form submission
+      const templateParams = {
+        name: data.name,
+        email: data.email,
+        message: data.message
+      };
+      
+      const result = await emailjs.send(
+        'service_urwtgiq', 
+        'template_r1wlct1',
+        templateParams,
+        'hGINihO2-pXRw9RHj'
+      );
+      
+      console.log('EmailJS result:', result);
+      
+      if (result.status === 200) {
         setFormStatus('success');
         reset(); // Reset form fields
         
@@ -84,6 +110,7 @@ const Contact = () => {
           setFormStatus(null);
         }, 3000);
       } else {
+        console.error('Form submission returned non-OK status:', result);
         setFormStatus('error');
         setTimeout(() => {
           setFormStatus(null);
