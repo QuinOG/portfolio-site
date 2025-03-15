@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { Helmet } from 'react-helmet-async';
 import NetQuest from '../assets/NetQuest.jpg';
 import ebay from '../assets/ebay.jpg';
 import portfolio from '../assets/portfolio.jpg';
@@ -91,86 +92,96 @@ const Projects = () => {
 
   return (
     <section id="projects" className="projects section">
+      {/* Section-specific SEO */}
+      <Helmet>
+        <title>Quinlan Davis | Projects</title>
+        <meta name="description" content="Explore my portfolio of web development projects including networking education sites, data aggregators, and UI/UX designs." />
+      </Helmet>
+      
       <div ref={projectsRef} className={`container projects-container ${isVisible ? 'visible' : ''}`}>
-        <div className="projects-header">
+        <header className="projects-header">
           <h2 className="projects-title">My Projects</h2>
           <p className="projects-description">
             Here are some of my recent projects. Each project showcases different skills and technologies I've worked with.
           </p>
-        </div>
+        </header>
         
-        <div className="projects-filter">
+        <nav className="projects-filter" aria-label="Project categories">
           {categories.map((category, index) => (
             <button 
               key={index} 
               className={`projects-filter-button ${activeCategory === category ? 'active' : ''}`}
               onClick={() => setActiveCategory(category)}
+              aria-pressed={activeCategory === category}
             >
               {category}
             </button>
           ))}
-        </div>
+        </nav>
         
-        <div className="projects-grid">
+        <ul className="projects-grid">
           {filteredProjects.map((project) => (
-            <div 
+            <li 
               key={project.id} 
               className={`project-card ${isVisible ? 'active' : ''}`}
               onClick={() => openProjectModal(project)}
             >
-              <div className="project-image">
-                <img src={project.image} alt={project.title} />
-                <div className="project-category">{project.category}</div>
-              </div>
-              <div className="project-content">
-                <h3 className="project-title">{project.title}</h3>
-                <p className="project-description">{project.description}</p>
-                <div className="project-footer">
-                  <div className="project-link">
-                    View Details
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M7 17L17 7M17 7H7M17 7V17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                    </svg>
-                  </div>
-                  <div className="project-tech">
-                    {project.tech.map((tech, index) => (
-                      <span key={index} className="project-tech-item" title={tech}>
-                        {tech.charAt(0)}
-                      </span>
-                    ))}
-                  </div>
+              <article>
+                <figure className="project-image">
+                  <img src={project.image} alt={`Screenshot of ${project.title} project`} />
+                  <figcaption className="project-category">{project.category}</figcaption>
+                </figure>
+                <div className="project-content">
+                  <h3 className="project-title">{project.title}</h3>
+                  <p className="project-description">{project.description}</p>
+                  <footer className="project-footer">
+                    <div className="project-link">
+                      View Details
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                        <path d="M7 17L17 7M17 7H7M17 7V17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                    </div>
+                    <ul className="project-tech">
+                      {project.tech.map((tech, index) => (
+                        <li key={index} className="project-tech-item" title={tech}>
+                          {tech.charAt(0)}
+                        </li>
+                      ))}
+                    </ul>
+                  </footer>
                 </div>
-              </div>
-            </div>
+              </article>
+            </li>
           ))}
-        </div>
+        </ul>
       </div>
 
       {/* Project Modal */}
-      <div 
+      <dialog 
         className={`project-modal ${modalOpen ? 'open' : ''}`}
         onClick={handleModalClick}
+        open={modalOpen}
       >
-        <button className="project-modal-close" onClick={closeProjectModal}>×</button>
+        <button className="project-modal-close" onClick={closeProjectModal} aria-label="Close modal">×</button>
         
         {selectedProject && (
-          <div className="project-modal-content" ref={modalContentRef}>
-            <div className="project-modal-image">
-              <img src={selectedProject.image} alt={selectedProject.title} />
-            </div>
+          <article className="project-modal-content" ref={modalContentRef}>
+            <figure className="project-modal-image">
+              <img src={selectedProject.image} alt={`Screenshot of ${selectedProject.title} project`} />
+            </figure>
             <div className="project-modal-body">
               <h2 className="project-modal-title">{selectedProject.title}</h2>
               <p className="project-modal-description">{selectedProject.fullDescription}</p>
               
               <div className="project-modal-tech">
                 <h3>Technologies Used:</h3>
-                <div className="project-modal-tech-list">
+                <ul className="project-modal-tech-list">
                   {selectedProject.tech.map((tech, index) => (
-                    <span key={index} className="project-modal-tech-item">
+                    <li key={index} className="project-modal-tech-item">
                       {tech}
-                    </span>
+                    </li>
                   ))}
-                </div>
+                </ul>
               </div>
               
               <a 
@@ -180,14 +191,14 @@ const Projects = () => {
                 className="btn btn-primary project-modal-link"
               >
                 View Project
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                   <path d="M7 17L17 7M17 7H7M17 7V17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
               </a>
             </div>
-          </div>
+          </article>
         )}
-      </div>
+      </dialog>
     </section>
   );
 };

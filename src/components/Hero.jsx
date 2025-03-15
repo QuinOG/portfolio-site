@@ -51,23 +51,23 @@ const Hero = () => {
             Hi, I'm <span className="hero-name">Quinlan!</span>
           </h1>
           <div className="hero-role-container">
-            <span className="hero-role slide-in-right">
+            <span className="hero-role slide-in-right" aria-live="polite">
               {typedText}<span className="cursor-blink">|</span>
             </span>
           </div>
           <p className="hero-description fade-in">
             I build beautiful, responsive websites and web applications with modern technologies.
           </p>
-          <div className="hero-buttons scale-in">
-            <a href="#projects" className="btn btn-primary interactive">View My Work</a>
-            <a href="#contact" className="btn btn-outline interactive">Contact Me</a>
-          </div>
+          <nav className="hero-buttons scale-in">
+            <a href="#projects" className="btn btn-primary interactive" role="button" aria-label="View my work">View My Work</a>
+            <a href="#contact" className="btn btn-outline interactive" role="button" aria-label="Contact me">Contact Me</a>
+          </nav>
         </div>
         
         <div className={`hero-scroll float ${isVisible ? 'visible' : ''}`}>
-          <div className="hero-scroll-text">Scroll Down</div>
-          <div className="hero-scroll-icon">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <p className="hero-scroll-text">Scroll Down</p>
+          <div className="hero-scroll-icon" aria-hidden="true">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Scroll down arrow">
               <path d="M12 5V19M12 19L19 12M12 19L5 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
           </div>
