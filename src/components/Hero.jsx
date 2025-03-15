@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 const Hero = () => {
   const [isVisible, setIsVisible] = useState(false);
   const [typedText, setTypedText] = useState('');
-  const roles = ['a Fullstack Developer.', 'a UI/UX Enthusiast.', 'a Networking Specialist.'];
+  const roles = ['Fullstack Developer.', 'UI/UX Enthusiast.', 'Networking Specialist.', 'Husband & Dog Dad.'];
   const [roleIndex, setRoleIndex] = useState(0);
   const [isTyping, setIsTyping] = useState(true);
 
