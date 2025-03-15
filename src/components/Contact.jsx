@@ -47,17 +47,8 @@ const Contact = () => {
       observer.observe(contactRef.current);
     }
     
-    // Initialize EmailJS
-    try {
-      emailjs.init({
-        publicKey: "hGINihO2-pXRw9RHj",
-        // Uncomment this if you're having domain restriction issues
-        restrictOrigin: false
-      });
-      console.log("EmailJS initialized successfully");
-    } catch (error) {
-      console.error("EmailJS initialization error:", error);
-    }
+    // Initialize EmailJS - no need to initialize here since we'll pass the public key directly
+    // This avoids domain restriction issues
     
     return () => {
       if (contactRef.current) {
@@ -92,10 +83,11 @@ const Contact = () => {
         message: data.message
       };
       
-      const result = await emailjs.send(
+      // Use the direct send method that doesn't require initialization
+      const result = await emailjs.sendForm(
         'service_urwtgiq', 
         'template_r1wlct1',
-        templateParams,
+        formRef.current,
         'hGINihO2-pXRw9RHj'
       );
       
@@ -146,6 +138,7 @@ const Contact = () => {
               <input
                 type="text"
                 id="name"
+                name="name"
                 className="interactive"
                 placeholder="Your name"
                 {...register('name')}
@@ -160,6 +153,7 @@ const Contact = () => {
               <input
                 type="email"
                 id="email"
+                name="email"
                 className="interactive"
                 placeholder="Your email"
                 {...register('email')}
@@ -173,6 +167,7 @@ const Contact = () => {
               <label htmlFor="message">Message</label>
               <textarea
                 id="message"
+                name="message"
                 className="interactive"
                 placeholder="Your message"
                 rows="5"
