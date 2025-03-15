@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Helmet } from 'react-helmet-async';
+import { Helmet } from 'react-helmet';
 import NetQuest from '../assets/NetQuest.jpg';
 import ebay from '../assets/ebay.jpg';
 import portfolio from '../assets/portfolio.jpg';
