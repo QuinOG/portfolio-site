@@ -87,9 +87,7 @@ const Footer = () => {
         <div className="footer-copyright reveal">
           <p>&copy; {currentYear} Quin.dev All rights reserved.</p>
           <div className="footer-links">
-            <a href="#" className="footer-link interactive">Privacy Policy</a>
-            <span className="footer-divider">•</span>
-            <a href="#" className="footer-link interactive">Terms of Service</a>
+            <p>Thanks for visiting! - Quin</p>
           </div>
         </div>
       </div>

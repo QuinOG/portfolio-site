@@ -52,11 +52,12 @@
   bottom: 8px;
   left: 0;
   z-index: -1;
-  transition: height 0.3s ease;
+  transition: 0.3s ease;
 }
 
 .hero-name:hover::after {
   height: 70%;
+  background-color: var(--accent);
 }
 
 .hero-role-container {
