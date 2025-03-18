@@ -14,9 +14,9 @@ const schema = yup.object({
 });
 
 // EmailJS configuration
-const EMAILJS_SERVICE_ID = 'service_urwtgiq';
-const EMAILJS_TEMPLATE_ID = 'template_r1wlct1';
-const EMAILJS_PUBLIC_KEY = 'hGINihO2-pXRw9RHj';
+const EMAILJS_SERVICE_ID = process.env.REACT_APP_EMAILJS_SERVICE_ID;
+const EMAILJS_TEMPLATE_ID = process.env.REACT_APP_EMAILJS_TEMPLATE_ID;
+const EMAILJS_PUBLIC_KEY = process.env.REACT_APP_EMAILJS_PUBLIC_KEY;
 
 const Contact = () => {
   const [formStatus, setFormStatus] = useState(null);
@@ -277,3 +277,4 @@ const Contact = () => {
 };
 
 export default Contact;
+
