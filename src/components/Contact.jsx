@@ -6,11 +6,26 @@ import emailjs from '@emailjs/browser';
 
 // Form validation schema
 const schema = yup.object({
-  name: yup.string().required('Name is required'),
-  email: yup.string().email('Please enter a valid email').required('Email is required'),
+  name: yup.string()
+    .required('Name is required')
+    .min(2, 'Name must be at least 2 characters')
+    .max(50, 'Name must be less than 50 characters')
+    .matches(/^[a-zA-Z\s-']+$/, 'Name can only contain letters, spaces, hyphens, and apostrophes')
+    .trim(),
+
+  email: yup.string()
+    .required('Email is required')
+    .email('Please enter a valid email')
+    .max(100, 'Email must be less than 100 characters')
+    .lowercase()
+    .trim(),
+
   message: yup.string()
     .required('Message is required')
     .min(10, 'Message should be at least 10 characters')
+    .max(1000, 'Message must be less than 1000 characters')
+    .matches(/^[^<>]*$/, 'HTML tags are not allowed')
+    .trim()
 });
 
 // EmailJS configuration
@@ -22,6 +37,8 @@ const Contact = () => {
   const [formStatus, setFormStatus] = useState(null);
   const [isVisible, setIsVisible] = useState(false);
   const [focusedInput, setFocusedInput] = useState(null);
+  const [submitCount, setSubmitCount] = useState(0);
+  const [lastSubmitTime, setLastSubmitTime] = useState(0);
   const contactRef = useRef(null);
   const formRef = useRef(null);
 
@@ -69,10 +86,26 @@ const Contact = () => {
 
   // Form submission handler
   const onSubmit = async (data) => {
+    // Rate limiting: 2 submissions per minute
+    const currentTime = Date.now();
+    
+    if (submitCount >= 2 && (currentTime - lastSubmitTime) < 60000) {
+      setFormStatus('error');
+      alert('Too many attempts. Please wait a minute before trying again.');
+      return;
+    }
+
     setFormStatus('sending');
     
     try {
       console.log('Attempting to send email with data:', data);
+      
+      // Sanitize data before sending
+      const sanitizedData = {
+        name: data.name.trim(),
+        email: data.email.toLowerCase().trim(),
+        message: data.message.trim()
+      };
       
       // Create a temporary form element for EmailJS
       const tempForm = document.createElement('form');
@@ -80,17 +113,17 @@ const Contact = () => {
       // Add the form fields
       const nameInput = document.createElement('input');
       nameInput.name = 'name';
-      nameInput.value = data.name;
+      nameInput.value = sanitizedData.name;
       tempForm.appendChild(nameInput);
       
       const emailInput = document.createElement('input');
       emailInput.name = 'email';
-      emailInput.value = data.email;
+      emailInput.value = sanitizedData.email;
       tempForm.appendChild(emailInput);
       
       const messageInput = document.createElement('textarea');
       messageInput.name = 'message';
-      messageInput.value = data.message;
+      messageInput.value = sanitizedData.message;
       tempForm.appendChild(messageInput);
       
       // Send the email using EmailJS
@@ -101,18 +134,16 @@ const Contact = () => {
         EMAILJS_PUBLIC_KEY
       );
       
-      console.log('EmailJS result:', result);
-      
       if (result.status === 200) {
         setFormStatus('success');
-        reset(); // Reset form fields
+        reset();
+        setSubmitCount(prev => prev + 1);
+        setLastSubmitTime(currentTime);
         
-        // Reset status after 3 seconds
         setTimeout(() => {
           setFormStatus(null);
         }, 3000);
       } else {
-        console.error('Form submission returned non-OK status:', result);
         setFormStatus('error');
         setTimeout(() => {
           setFormStatus(null);
@@ -126,6 +157,18 @@ const Contact = () => {
       }, 3000);
     }
   };
+
+  // Reset submit count after 1 minute
+  useEffect(() => {
+    const timer = setInterval(() => {
+      const currentTime = Date.now();
+      if ((currentTime - lastSubmitTime) > 60000) {
+        setSubmitCount(0);
+      }
+    }, 60000);
+
+    return () => clearInterval(timer);
+  }, [lastSubmitTime]);
 
   return (
     <section id="contact" className="contact section">
@@ -215,7 +258,11 @@ const Contact = () => {
                 <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <path d="M10 0C4.48 0 0 4.48 0 10C0 15.52 4.48 20 10 20C15.52 20 20 15.52 20 10C20 4.48 15.52 0 10 0ZM11 15H9V13H11V15ZM11 11H9V5H11V11Z" fill="currentColor"/>
                 </svg>
-                <span>Something went wrong. Please try again.</span>
+                <span>
+                  {submitCount >= 3 
+                    ? 'Too many attempts. Please wait a minute before trying again.'
+                    : 'Something went wrong. Please try again.'}
+                </span>
               </div>
             )}
           </form>
@@ -277,4 +324,7 @@ const Contact = () => {
 };
 
 export default Contact;
+
+
+
 
