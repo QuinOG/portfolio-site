@@ -3,13 +3,22 @@ import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import emailjs from '@emailjs/browser';
+import useIntersectionObserver from '../hooks/useIntersectionObserver';
 
-// Form validation schema
+// Environment variables for EmailJS configuration
+// These should be set in your .env file for security
+const EMAILJS_SERVICE_ID = process.env.REACT_APP_EMAILJS_SERVICE_ID;
+const EMAILJS_TEMPLATE_ID = process.env.REACT_APP_EMAILJS_TEMPLATE_ID;
+const EMAILJS_PUBLIC_KEY = process.env.REACT_APP_EMAILJS_PUBLIC_KEY;
+
+// Validation schema for form inputs
+// Strict validation rules help prevent spam and ensure data quality
 const schema = yup.object({
   name: yup.string()
     .required('Name is required')
     .min(2, 'Name must be at least 2 characters')
     .max(50, 'Name must be less than 50 characters')
+    // Only allow letters and basic punctuation to prevent injection attacks
     .matches(/^[a-zA-Z\s-']+$/, 'Name can only contain letters, spaces, hyphens, and apostrophes')
     .trim(),
 
@@ -17,6 +26,7 @@ const schema = yup.object({
     .required('Email is required')
     .email('Please enter a valid email')
     .max(100, 'Email must be less than 100 characters')
+    // Standardize email format for consistency
     .lowercase()
     .trim(),
 
@@ -24,25 +34,29 @@ const schema = yup.object({
     .required('Message is required')
     .min(10, 'Message should be at least 10 characters')
     .max(1000, 'Message must be less than 1000 characters')
+    // Basic XSS prevention
     .matches(/^[^<>]*$/, 'HTML tags are not allowed')
     .trim()
 });
 
-// EmailJS configuration
-const EMAILJS_SERVICE_ID = process.env.REACT_APP_EMAILJS_SERVICE_ID;
-const EMAILJS_TEMPLATE_ID = process.env.REACT_APP_EMAILJS_TEMPLATE_ID;
-const EMAILJS_PUBLIC_KEY = process.env.REACT_APP_EMAILJS_PUBLIC_KEY;
-
 const Contact = () => {
+  // Track form submission status for UI feedback
   const [formStatus, setFormStatus] = useState(null);
-  const [isVisible, setIsVisible] = useState(false);
+  // Track focused input for enhanced UI feedback
   const [focusedInput, setFocusedInput] = useState(null);
+  // Rate limiting state
   const [submitCount, setSubmitCount] = useState(0);
   const [lastSubmitTime, setLastSubmitTime] = useState(0);
-  const contactRef = useRef(null);
+
+  // Refs for DOM manipulation and intersection observer
   const formRef = useRef(null);
 
-  // Initialize React Hook Form
+  // Use the custom hook for intersection observer
+  const [contactRef, isVisible] = useIntersectionObserver({
+    threshold: 0.1
+  });
+
+  // Initialize form handling with validation
   const { 
     register, 
     handleSubmit, 
@@ -52,44 +66,17 @@ const Contact = () => {
     resolver: yupResolver(schema)
   });
 
-  useEffect(() => {
-    // Add scroll reveal observer
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach(entry => {
-          if (entry.isIntersecting) {
-            setIsVisible(true);
-          }
-        });
-      },
-      { threshold: 0.1 }
-    );
-    
-    if (contactRef.current) {
-      observer.observe(contactRef.current);
-    }
-    
-    return () => {
-      if (contactRef.current) {
-        observer.unobserve(contactRef.current);
-      }
-    };
-  }, []);
+  // Input focus handlers for enhanced UI feedback
+  const handleFocus = (inputName) => setFocusedInput(inputName);
+  const handleBlur = () => setFocusedInput(null);
 
-  const handleFocus = (inputName) => {
-    setFocusedInput(inputName);
-  };
-
-  const handleBlur = () => {
-    setFocusedInput(null);
-  };
-
-  // Form submission handler
+  // Form submission handler with rate limiting and error handling
   const onSubmit = async (data) => {
-    // Rate limiting: 2 submissions per minute
-    const currentTime = Date.now();
+    const now = Date.now();
+    const oneMinute = 60 * 1000;
     
-    if (submitCount >= 2 && (currentTime - lastSubmitTime) < 60000) {
+    // Prevent spam by limiting submissions
+    if (submitCount >= 3 && (now - lastSubmitTime) < oneMinute) {
       setFormStatus('error');
       alert('Too many attempts. Please wait a minute before trying again.');
       return;
@@ -98,35 +85,26 @@ const Contact = () => {
     setFormStatus('sending');
     
     try {
-      console.log('Attempting to send email with data:', data);
-      
-      // Sanitize data before sending
+      // Sanitize input data before processing
       const sanitizedData = {
         name: data.name.trim(),
         email: data.email.toLowerCase().trim(),
         message: data.message.trim()
       };
       
-      // Create a temporary form element for EmailJS
+      // Create temporary form for EmailJS
+      // This approach prevents direct DOM manipulation in the main form
       const tempForm = document.createElement('form');
       
-      // Add the form fields
-      const nameInput = document.createElement('input');
-      nameInput.name = 'name';
-      nameInput.value = sanitizedData.name;
-      tempForm.appendChild(nameInput);
+      // Populate temporary form with sanitized data
+      Object.entries(sanitizedData).forEach(([key, value]) => {
+        const input = document.createElement(key === 'message' ? 'textarea' : 'input');
+        input.name = key;
+        input.value = value;
+        tempForm.appendChild(input);
+      });
       
-      const emailInput = document.createElement('input');
-      emailInput.name = 'email';
-      emailInput.value = sanitizedData.email;
-      tempForm.appendChild(emailInput);
-      
-      const messageInput = document.createElement('textarea');
-      messageInput.name = 'message';
-      messageInput.value = sanitizedData.message;
-      tempForm.appendChild(messageInput);
-      
-      // Send the email using EmailJS
+      // Send email and handle response
       const result = await emailjs.sendForm(
         EMAILJS_SERVICE_ID,
         EMAILJS_TEMPLATE_ID,
@@ -135,34 +113,31 @@ const Contact = () => {
       );
       
       if (result.status === 200) {
+        // Success handling
         setFormStatus('success');
         reset();
         setSubmitCount(prev => prev + 1);
-        setLastSubmitTime(currentTime);
+        setLastSubmitTime(now);
         
-        setTimeout(() => {
-          setFormStatus(null);
-        }, 3000);
+        // Reset success message after delay
+        setTimeout(() => setFormStatus(null), 3000);
       } else {
+        // Error handling
         setFormStatus('error');
-        setTimeout(() => {
-          setFormStatus(null);
-        }, 3000);
+        setTimeout(() => setFormStatus(null), 3000);
       }
     } catch (error) {
       console.error('Form submission error:', error);
       setFormStatus('error');
-      setTimeout(() => {
-        setFormStatus(null);
-      }, 3000);
+      setTimeout(() => setFormStatus(null), 3000);
     }
   };
 
-  // Reset submit count after 1 minute
+  // Reset rate limiting after cooldown period
   useEffect(() => {
     const timer = setInterval(() => {
-      const currentTime = Date.now();
-      if ((currentTime - lastSubmitTime) > 60000) {
+      const now = Date.now();
+      if ((now - lastSubmitTime) > 60000) {
         setSubmitCount(0);
       }
     }, 60000);
@@ -170,9 +145,11 @@ const Contact = () => {
     return () => clearInterval(timer);
   }, [lastSubmitTime]);
 
+  // JSX structure with accessibility and user feedback features
   return (
     <section id="contact" className="contact section">
       <div ref={contactRef} className={`container contact-container ${isVisible ? 'visible' : ''}`}>
+        {/* Form header with clear call-to-action */}
         <div className="contact-header reveal">
           <h2 className="contact-title">Get In Touch</h2>
           <p className="contact-description">
@@ -181,6 +158,7 @@ const Contact = () => {
         </div>
         
         <div className="contact-content">
+          {/* Main contact form with validation and feedback states */}
           <form 
             ref={formRef}
             className={`contact-form reveal ${formStatus === 'success' ? 'success' : ''} ${formStatus === 'error' ? 'error' : ''}`} 
@@ -267,6 +245,7 @@ const Contact = () => {
             )}
           </form>
           
+          {/* Additional contact information and social links */}
           <div className="contact-info reveal">
             <div className="contact-info-item interactive">
               <div className="contact-info-icon">
@@ -324,7 +303,4 @@ const Contact = () => {
 };
 
 export default Contact;
-
-
-
 

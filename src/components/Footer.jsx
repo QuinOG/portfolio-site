@@ -1,34 +1,12 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState } from 'react';
+import useIntersectionObserver from '../hooks/useIntersectionObserver';
 
 const Footer = () => {
-  const [isVisible, setIsVisible] = useState(false);
   const [currentYear] = useState(new Date().getFullYear());
   const [hoveredLink, setHoveredLink] = useState(null);
-  const footerRef = useRef(null);
-
-  useEffect(() => {
-    // Add scroll reveal observer
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach(entry => {
-          if (entry.isIntersecting) {
-            setIsVisible(true);
-          }
-        });
-      },
-      { threshold: 0.1 }
-    );
-    
-    if (footerRef.current) {
-      observer.observe(footerRef.current);
-    }
-    
-    return () => {
-      if (footerRef.current) {
-        observer.unobserve(footerRef.current);
-      }
-    };
-  }, []);
+  const [setFooterRef, isVisible] = useIntersectionObserver({
+    threshold: 0.1
+  });
 
   // Social media links with hover animations
   const socialLinks = [
@@ -57,7 +35,7 @@ const Footer = () => {
   return (
     <footer className="footer">
       <div 
-        ref={footerRef} 
+        ref={setFooterRef} 
         className={`container footer-container ${isVisible ? 'visible' : ''}`}
       >
         <div className="footer-logo reveal">
