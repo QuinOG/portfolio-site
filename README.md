@@ -119,11 +119,7 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 4. Push to the branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
 
-## 📬 Contact
-
-Your Name - [@yourusername](https://twitter.com/yourusername)
-
-Project Link: [https://github.com/yourusername/portfolio-template](https://github.com/yourusername/portfolio-template)
+Project Link: [https://github.com/QuinOG/portfolio-template](https://github.com/QuinOG/portfolio-template)
 
 ## 🙏 Acknowledgments
 
