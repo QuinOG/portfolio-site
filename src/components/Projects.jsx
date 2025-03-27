@@ -44,7 +44,6 @@ const Projects = () => {
   const [selectedProject, setSelectedProject] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
-  const [flippedCards, setFlippedCards] = useState({}); // Track which cards are flipped
   const [resumeModalOpen, setResumeModalOpen] = useState(false); // State for resume modal
   const [currentCardIndex, setCurrentCardIndex] = useState(0); // Track current card in stack
   const [isDragging, setIsDragging] = useState(false); // Track if user is dragging a card
@@ -72,7 +71,6 @@ const Projects = () => {
   // Reset current card index when category changes
   useEffect(() => {
     setCurrentCardIndex(0);
-    setFlippedCards({});
   }, [activeCategory]);
 
   const openProjectModal = (project) => {
@@ -86,31 +84,19 @@ const Projects = () => {
     document.body.style.overflow = ''; // Re-enable scrolling
   };
 
-  // Handle card flip toggling
-  const handleCardFlip = (e, projectId) => {
-    e.stopPropagation(); // Prevent other actions when flipping
-    setFlippedCards(prev => ({
-      ...prev,
-      [projectId]: !prev[projectId]
-    }));
-  };
-
   // Move to the next card in the stack
   const moveToNextCard = () => {
     // Only proceed if not on the last card
     if (currentCardIndex < filteredProjects.length - 1) {
-      setFlippedCards({}); // Reset flipped state
       setCurrentCardIndex(prevIndex => prevIndex + 1);
     } else {
       // Loop back to the first card when at the end
-      setFlippedCards({}); // Reset flipped state
       setCurrentCardIndex(0);
     }
   };
 
   // Move to the previous card in the stack
   const moveToPrevCard = () => {
-    setFlippedCards({}); // Reset flipped state
     if (currentCardIndex > 0) {
       setCurrentCardIndex(prevIndex => prevIndex - 1);
     } else {
@@ -248,7 +234,6 @@ const Projects = () => {
                     ${index === currentCardIndex ? 'active' : ''} 
                     ${index < currentCardIndex ? 'previous' : ''} 
                     ${index > currentCardIndex ? 'next' : ''} 
-                    ${flippedCards[project.id] ? 'flipped' : ''}
                     ${isDragging && index === currentCardIndex ? 'dragging' : ''}
                   `}
                   style={
@@ -259,13 +244,12 @@ const Projects = () => {
                   onMouseDown={index === currentCardIndex ? handleDragStart : undefined}
                   onTouchStart={index === currentCardIndex ? handleDragStart : undefined}
                 >
-                  {/* Front of card */}
-                  <div className="stack-card-front">
+                  <div className="stack-card-content">
                     <div className="stack-card-image">
                       <img src={project.image} alt={`Screenshot of ${project.title} project`} />
                       <div className="stack-card-category">{project.category}</div>
                     </div>
-                    <div className="stack-card-content">
+                    <div className="stack-card-content-inner">
                       <h3 className="stack-card-title">{project.title}</h3>
                       <p className="stack-card-description">{project.description}</p>
                       
@@ -277,17 +261,6 @@ const Projects = () => {
                       
                       <div className="stack-card-actions">
                         <button 
-                          className="stack-card-flip-btn"
-                          onClick={(e) => handleCardFlip(e, project.id)}
-                          aria-label="Flip card"
-                        >
-                          Flip Card
-                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M16 2v6h6M8 2v6H2M16 22v-6h6M8 22v-6H2M12 2v20" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                          </svg>
-                        </button>
-                        
-                        <button 
                           className="stack-card-details-btn"
                           onClick={() => openProjectModal(project)}
                           aria-label="View project details"
@@ -295,36 +268,6 @@ const Projects = () => {
                           View Details
                           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <path d="M7 17L17 7M17 7H7M17 7V17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                          </svg>
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  {/* Back of card */}
-                  <div className="stack-card-back">
-                    <div className="stack-card-back-content">
-                      <h3 className="stack-card-title">{project.title}</h3>
-                      <p className="stack-card-full-description">{project.fullDescription}</p>
-                      
-                      <div className="stack-card-back-tech">
-                        <h4>Technologies Used:</h4>
-                        <div className="stack-card-tech">
-                          {project.tech.map((tech, techIndex) => (
-                            <span key={techIndex} className="stack-card-tech-item">{tech}</span>
-                          ))}
-                        </div>
-                      </div>
-                      
-                      <div className="stack-card-actions">
-                        <button 
-                          className="stack-card-flip-btn"
-                          onClick={(e) => handleCardFlip(e, project.id)}
-                          aria-label="Flip card back"
-                        >
-                          Flip Back
-                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M16 2v6h6M8 2v6H2M16 22v-6h6M8 22v-6H2M12 2v20" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                           </svg>
                         </button>
                         
@@ -335,7 +278,7 @@ const Projects = () => {
                           className="stack-card-link-btn"
                           aria-label="View project repository"
                         >
-                          View Project
+                          Repository
                           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <path d="M7 17L17 7M17 7H7M17 7V17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                           </svg>
@@ -366,7 +309,6 @@ const Projects = () => {
                     className={`card-indicator ${index === currentCardIndex ? 'active' : ''}`}
                     onClick={() => {
                       setCurrentCardIndex(index);
-                      setFlippedCards({});
                     }}
                     aria-label={`Go to project ${index + 1}`}
                   />
@@ -453,7 +395,7 @@ const Projects = () => {
                 rel="noopener noreferrer" 
                 className="btn btn-primary project-modal-link"
               >
-                View Project
+                Repository
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                   <path d="M7 17L17 7M17 7H7M17 7V17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>

@@ -298,6 +298,7 @@
   
   .about-image-container {
     order: 0;
+    right: 10px;
     max-width: 120px;
     margin: 0;
   }
