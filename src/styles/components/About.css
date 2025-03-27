@@ -274,6 +274,7 @@
   
   .about-image-container.mobile-only {
     display: block;
+    right: 10px;
     max-width: 250px;
     order: -1;
   }
@@ -319,6 +320,7 @@
   
   .about-image-container.mobile-only {
     order: 0;
+    right: 10px;
     max-width: 120px;
     margin: 0;
   }
