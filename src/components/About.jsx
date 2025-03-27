@@ -87,7 +87,8 @@ const About = () => {
               </div>
             </div>
             
-            <div className="about-image-container">
+            {/* Mobile image - will be hidden on desktop with CSS */}
+            <div className="about-image-container mobile-only">
               <div className="about-image-decoration"></div>
               <img 
                 src={avatar}
@@ -130,6 +131,16 @@ const About = () => {
               </div> */}
             </div>
           </div>
+        </div>
+        
+        {/* Desktop image - will be hidden on mobile with CSS */}
+        <div className="about-image-container desktop-only">
+          <div className="about-image-decoration"></div>
+          <img 
+            src={avatar}
+            alt="Profile" 
+            className="about-image" 
+          />
         </div>
       </div>
     </section>
