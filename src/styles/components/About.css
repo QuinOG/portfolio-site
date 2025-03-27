@@ -254,7 +254,7 @@
   
   .about-image-container {
     order: -1;
-    max-width: 350px;
+    max-width: 250px;
   }
   
   .tech-categories {
@@ -273,6 +273,10 @@
     padding: var(--space-xl) 0;
   }
   
+  .about-container {
+    grid-template-columns: 1fr;
+  }
+  
   .about-title {
     font-size: 1.8rem;
   }
@@ -281,8 +285,31 @@
     font-size: 0.95rem;
   }
   
+  .about-header {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-md);
+    margin-bottom: var(--space-md);
+  }
+  
+  .about-title-bio-container {
+    flex: 1;
+  }
+  
   .about-image-container {
-    max-width: 300px;
+    order: 0;
+    max-width: 120px;
+    margin: 0;
+  }
+  
+  .about-image-decoration {
+    top: 8px;
+    left: 8px;
+    border-width: 1px;
+  }
+  
+  .bio-text {
+    width: 100%;
   }
   
   .tech-categories {
